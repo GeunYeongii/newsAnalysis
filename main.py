@@ -5,24 +5,23 @@ from trainmodel import TrainModel
 from predictstockmovement import PredictStockMovement
 
 def main():
-    # Load and preprocess data
+    # Load
     dataloader = DataLoader('news_data.xlsx')
     df = dataloader.load_data()
 
-    # Perform sentiment analysis
     analyzer = SentimentAnalyzer()
     df['sentiment_score'] = df['CONTENT'].apply(analyzer.analyze)
 
-    # Split data into training and testing sets
+    # test train split
     x_train = df['sentiment_score'][:-100]
     x_test = df['sentiment_score'][-100:]
 
-    # Build and train the autoencoder model
+    # 오토인코더 학습
     autoencoder = AutoEncoderModel(input_dim=1, encoding_dim=32).build_model()
     trainer = TrainModel(autoencoder, x_train, x_test)
     trainer.train()
 
-    # Predict stock price movement
+    # 주가변동 예측
     predictor = PredictStockMovement(autoencoder)
     df['predicted_movement'] = predictor.predict(df['sentiment_score'])
 
